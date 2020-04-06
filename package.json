@@ -1,0 +1,13 @@
+{
+  "name": "othello",
+  "version": "1.0.0",
+  "main": "server.js",
+  "author": "MatthewMerrill",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.17.1",
+    "jsonschema": "^1.2.6",
+    "lowdb": "^1.0.0",
+    "uuid": "^7.0.3"
+  }
+}
