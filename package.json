@@ -5,9 +5,14 @@
   "author": "MatthewMerrill",
   "license": "MIT",
   "dependencies": {
+    "@angular/cli": "^9.1.0",
     "express": "^4.17.1",
     "jsonschema": "^1.2.6",
     "lowdb": "^1.0.0",
-    "uuid": "^7.0.3"
+    "uuid": "^7.0.3",
+    "vue": "^2.6.11"
+  },
+  "devDependencies": {
+    "@vue/cli": "^4.3.1"
   }
 }

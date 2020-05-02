@@ -14,12 +14,9 @@ v.addSchema(spaceSchema, '/Space');
 
 const moveSchema = {
   id: "/Move",
-  type: "object",
-  properties: {
-    player: {type: "number"},
-    space: {$ref: "/Space"},
-  },
-  required: ["player", "space"],
+  type: "string",
+  minLength: 2,
+  maxLength: 4,
 };
 v.addSchema(moveSchema, '/Move');
 

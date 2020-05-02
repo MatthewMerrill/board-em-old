@@ -59,6 +59,16 @@ class Board {
     this.state[4][4] = 1;
   }
 
+  clone() {
+    let copy = new Board();
+    for (let rowIdx = 0; rowIdx < 8; rowIdx++) {
+      for (let colIdx = 0; colIdx < 8; colIdx++) {
+        copy.state[rowIdx][colIdx] = this.state[rowIdx][colIdx]
+      }
+    }
+    return copy;
+  }
+
   playerAt(space) {
     space.assertValid();
     return this.state[space.row][space.col];
@@ -118,7 +128,17 @@ class Board {
   }
 
   toString() {
-    return this.state.map(row => row.map(ch => ['_','X','O'][ch]).join(' ')).join('\n');
+    let render = this.state.map((row, rowIdx) => 'ABCDEFGH'[rowIdx] + ' '
+      + row.map(ch => '_XO'[ch]).join(' ')).join('\n')
+      + '\n  1 2 3 4 5 6 7 8\n\n';
+    let os = 0;
+    let xs = 0;
+    for (let ch of render) {
+      if (ch == 'O') os++;
+      if (ch == 'X') xs++;
+    }
+    render += 'X: ' + ('' + xs).padStart(2) + '   O: ' + ('' + os).padStart(2);
+    return render;
   }
 }
 module.exports.Board = Board;
@@ -128,5 +148,13 @@ class Move {
     this.player = player;
     this.space = new Space(rowIdx, colIdx);
   }
+
+  toString() {
+    return 'ABCDEFGH'[this.space.row] + (this.space.col + 1);
+  }
 }
+Move.fromString = function(player, s) {
+  return new Move(player, 'ABCDEFGH'.indexOf(s[0]), '12345678'.indexOf(s[1]));
+}
+
 module.exports.Move = Move;

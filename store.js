@@ -13,6 +13,7 @@ class Store {
 
   loadGameObject(gameId) {
     let val = this.db.get('games').get(gameId).value();
+    if (!val) return val;
     let game = new Game(gameId, false);
     game = Object.assign(game, val);
     game.board = Object.assign(new Board(), game.board);
@@ -25,7 +26,8 @@ class Store {
 
   getGame(gameId) {
     let game = this.loadGameObject(gameId);
-    return {id: game.id, moves: game.moves, board: {state: game.board.state}};
+    if (!game) return game;
+    return {id: game.id, moves: game.moves, board: game.board.toString()};
   }
 
   createGame() {

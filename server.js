@@ -16,7 +16,8 @@ function notFound(res) {
   res.send({ code: 404, message: 'Not Found' });
 }
 
-app.use(express.json());
+// TODO: wrap moves to be able to be strict
+app.use(express.json({strict:false}));
 
 app.get('/', (req, res) => res.redirect('http://www.mattmerr.com'));
 
@@ -31,17 +32,25 @@ app.get('/games/:game_id([a-z0-9-]+)', (req, res) => {
     res.send(gameInfo);
   }
   else {
-    res.sendStatus(404);
+    notFound(res);
+    return;
   }
 });
 
 app.get('/games/:game_id([a-z0-9-]+)/validMoves', (req, res) => {
   let game = store.loadGameObject(req.params.game_id);
   if (!game) {
-    res.sendStatus(404);
+    notFound(res);
     return;
   }
-  res.send(game.board.validMoves(game.currentPlayer()));
+
+  let moves = game.board.validMoves(game.currentPlayer());
+  let withRenders = moves.map(move => {
+    let board = game.board.clone();
+    board.applyMove(move);
+    return {move: move.toString(), board: board.toString()};
+  });
+  res.send(withRenders);
 });
 
 
@@ -51,7 +60,7 @@ app.get('/games/:game_id([a-z0-9-]+)/moves/:move_id(\\d+)', (req, res) => {
   
   // Doing the ! > -1 catches NaN
   if (!(moveNumber > -1)) {
-    res.sendStatus(400);
+    badRequest(res);
     return;
   }
   if (!game || !game.moves[moveNumber]) {
@@ -64,10 +73,12 @@ app.get('/games/:game_id([a-z0-9-]+)/moves/:move_id(\\d+)', (req, res) => {
 app.post('/games/:game_id([a-z0-9-]+)/moves/:move_id', (req, res) => {
   let gameId = req.params.game_id;
   let moveNumber = req.params.move_id * 1;
+  console.log(req.body);
   let v = validation.validateMove(req.body);
 
   let game = store.loadGameObject(req.params.game_id);
   if (v.errors.length > 0 || (game && moveNumber !== game.moves.length)) {
+    console.log(v.errors);
     badRequest(res);
     return;
   }
@@ -76,13 +87,17 @@ app.post('/games/:game_id([a-z0-9-]+)/moves/:move_id', (req, res) => {
     return;
   }
 
-  let move = new Move(req.body.player, req.body.space.row, req.body.space.col);
+  // TODO: determine player movability and stuff or something idk
+  //let move = new Move(req.body.player, req.body.space.row, req.body.space.col);
+  let move = Move.fromString(game.moves.length % 2 + 1, req.body);
+  console.log(move);
   if (!game.isValid(move)) {
     badRequest(res, 'Invalid Move');
     return;
   }
   game.makeMove(move);
   store.saveGameObject(game);
+  res.sendStatus(200);
 });
 
 app.listen(port, () => console.log(`Othello API listening at http://localhost:${port}`))
