@@ -33,7 +33,7 @@
         </div>
       </div>
     </div>
-    <audio id="chime" type="audio/wav" src="398661__psykoosiossi__chime.wav"></audio>
+    <audio id="chime" type="audio/wav" src="398661__psykoosiossi__chime_small.wav"></audio>_
   </div>
 </template>
 
