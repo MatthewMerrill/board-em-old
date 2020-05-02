@@ -2,6 +2,9 @@
   <div id="app">
     <h1 class="title">My Board Game Hub Project</h1>
     <Game class="shadowed lightpad"></Game>
+    <div id="byline" class="shadowed lightpad">
+      Matthew Merrill 2020
+      <a href="https://www.mattmerr.com">mattmerr.com</a></div>
   </div>
 </template>
 
@@ -39,5 +42,9 @@ h1.title {
 
 .lightpad {
   padding: 1ch;
+}
+
+#byline {
+  margin-top: 10px;
 }
 </style>
