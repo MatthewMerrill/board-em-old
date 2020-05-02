@@ -63,6 +63,7 @@ app.get('/games/:game_id([a-z0-9-]+)/moves/:move_id(\\d+)', (req, res) => {
     badRequest(res);
     return;
   }
+  let game = store.loadGameObject(req.params.game_id);
   if (!game || !game.moves[moveNumber]) {
     notFound(res);
     return;
@@ -73,12 +74,10 @@ app.get('/games/:game_id([a-z0-9-]+)/moves/:move_id(\\d+)', (req, res) => {
 app.post('/games/:game_id([a-z0-9-]+)/moves/:move_id', (req, res) => {
   let gameId = req.params.game_id;
   let moveNumber = req.params.move_id * 1;
-  console.log(req.body);
   let v = validation.validateMove(req.body);
 
   let game = store.loadGameObject(req.params.game_id);
   if (v.errors.length > 0 || (game && moveNumber !== game.moves.length)) {
-    console.log(v.errors);
     badRequest(res);
     return;
   }
@@ -90,7 +89,6 @@ app.post('/games/:game_id([a-z0-9-]+)/moves/:move_id', (req, res) => {
   // TODO: determine player movability and stuff or something idk
   //let move = new Move(req.body.player, req.body.space.row, req.body.space.col);
   let move = Move.fromString(game.moves.length % 2 + 1, req.body);
-  console.log(move);
   if (!game.isValid(move)) {
     badRequest(res, 'Invalid Move');
     return;

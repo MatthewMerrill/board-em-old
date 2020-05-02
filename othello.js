@@ -76,7 +76,10 @@ class Board {
 
   applyMove(move) {
     if (!this.isValidMove(move)) {
-      throw new Exception('Invalid Move!');
+      throw new Error('Invalid Move!');
+    }
+    if (move.space === null) {
+      return;
     }
     this.state[move.space.row][move.space.col] = move.player;
     let flips = this.flippedBy(move);
@@ -86,12 +89,19 @@ class Board {
   }
 
   isValidMove(move) {
+    if (move.space === null) {
+      let moves = this.validMoves(move.player, false);
+      return moves.length === 1 && moves[0].space === null;
+    }
     return move.space.isValid()
       && this.state[move.space.row][move.space.col] === 0
       && this.flippedBy(move).length > 0;
   }
 
   flippedBy(move) {
+    if (move.space === null) {
+      return [];
+    }
     let {player, space} = move;
     let flipped = [];
     for (let dr = -1; dr <= 1; dr++) {
@@ -114,7 +124,7 @@ class Board {
     return flipped;
   }
 
-  validMoves(player) {
+  validMoves(player, disregardPass) {
     let moves = [];
     for (let rowIdx = 0; rowIdx < 8; rowIdx++) {
       for (let colIdx = 0; colIdx < 8; colIdx++) {
@@ -123,6 +133,9 @@ class Board {
           moves.push(move);
         }
       }
+    }
+    if (moves.length === 0 && !disregardPass && this.validMoves(player ^ 3, true).length > 0) {
+      moves.push(new Move(player, -1, -1));
     }
     return moves;
   }
@@ -146,14 +159,25 @@ module.exports.Board = Board;
 class Move {
   constructor(player, rowIdx, colIdx) {
     this.player = player;
-    this.space = new Space(rowIdx, colIdx);
+    if (rowIdx == -1 && colIdx == -1) {
+      this.space = null;
+    }
+    else {
+      this.space = new Space(rowIdx, colIdx);
+    }
   }
 
   toString() {
+    if (this.space === null) {
+      return 'PASS';
+    }
     return 'ABCDEFGH'[this.space.row] + (this.space.col + 1);
   }
 }
 Move.fromString = function(player, s) {
+  if (s === 'PASS') {
+    return new Move(player, -1, -1);
+  }
   return new Move(player, 'ABCDEFGH'.indexOf(s[0]), '12345678'.indexOf(s[1]));
 }
 

@@ -1,6 +1,6 @@
 const low = require('lowdb');
 const FileSync = require('lowdb/adapters/FileSync');
-const {Game, Board} = require('./othello.js');
+const {Game, Board, Move} = require('./othello.js');
 
 const uuidv4 = require('uuid').v4;
 
@@ -27,7 +27,7 @@ class Store {
   getGame(gameId) {
     let game = this.loadGameObject(gameId);
     if (!game) return game;
-    return {id: game.id, moves: game.moves, board: game.board.toString()};
+    return {id: game.id, moves: game.moves.map(m => Object.assign(new Move(), m).toString()), board: game.board.toString()};
   }
 
   createGame() {
