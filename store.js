@@ -27,7 +27,12 @@ class Store {
   getGame(gameId) {
     let game = this.loadGameObject(gameId);
     if (!game) return game;
-    return {id: game.id, moves: game.moves.map(m => Object.assign(new Move(), m).toString()), board: game.board.toString()};
+    return {
+      id: game.id,
+      moves: game.moves.map(m => Object.assign(new Move(), m).toString()),
+      board: game.board.state,
+      render: game.board.toString(),
+    };
   }
 
   createGame() {

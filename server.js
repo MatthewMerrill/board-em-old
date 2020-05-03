@@ -48,7 +48,7 @@ app.get('/games/:game_id([a-z0-9-]+)/validMoves', (req, res) => {
   let withRenders = moves.map(move => {
     let board = game.board.clone();
     board.applyMove(move);
-    return {move: move.toString(), board: board.toString()};
+    return {move: move.toString(), board: board.state, render: board.toString()};
   });
   res.send(withRenders);
 });

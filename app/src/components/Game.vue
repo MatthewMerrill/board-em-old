@@ -16,24 +16,27 @@
       <button v-bind:disabled="!id" v-on:click="setPlayer(1)">Play as Player 2</button>
       <button v-bind:disabled="!id" v-on:click="setPlayer(2)">Play as Both Players</button>
       <pre v-if="displayedMove === null">{{board}}</pre>
-      <pre v-if="displayedMove !== null">{{validMoves[displayedMove].board}}</pre>
+      <pre v-if="displayedMove !== null">{{validMoves[displayedMove].render}}</pre>
       <div id="move-list">
         <div><strong>History:</strong></div>
         <div v-for="move in moves" :key="move.move">
-          <div class="history-move">{{move}}&nbsp;</div>
+          <div class="move-token">{{move}}&nbsp;</div>
         </div>
       </div>
       <hr>
       <div id="move-list">
         <div v-for="(moveOption, index) in validMoves" :key="moveOption.move">
-          <button v-on:click="makeMove(moveOption.move)"
-             v-bind:disabled="(1 - moves.length % 2) == playerId"
-             @mouseover="displayedMove=index"
-             @mouseout="displayedMove=null">{{moveOption.move}}</button>
+          <button v-if="(1 - moves.length % 2) != playerId"
+                  v-on:click="makeMove(moveOption.move)"
+                  @mouseover="displayedMove=index"
+                  @mouseout="displayedMove=null">{{moveOption.move}}</button>
+          <span class="move-token" v-if="(1 - moves.length % 2) == playerId"
+                  @mouseover="displayedMove=index"
+                  @mouseout="displayedMove=null">{{moveOption.move}}</span>
         </div>
       </div>
     </div>
-    <audio id="chime" type="audio/wav" src="398661__psykoosiossi__chime_small.wav"></audio>_
+    <audio id="chime" type="audio/wav" src="398661__psykoosiossi__chime_small.wav"></audio>
   </div>
 </template>
 
@@ -99,7 +102,7 @@ export default {
     },
 
     updateGame(game) {
-      let {moves, board} = game;
+      let {moves, render: board} = game;
       this.moves = moves;
       this.board = board;
       this.fetchValidMoves();
@@ -157,7 +160,7 @@ pre {
   flex-wrap: wrap;
   width: 30ch;
 }
-.history-move {
+.move-token {
   display: inline-block;
   border: 1px solid #ccc;
   margin: 0 1px;
