@@ -105,6 +105,7 @@ export default {
       let {moves, render: board} = game;
       this.moves = moves;
       this.board = board;
+      this.displayedMove = null;
       this.fetchValidMoves();
     },
 
