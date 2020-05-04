@@ -1,8 +1,8 @@
 <template>
   <div id="game">
+    <span v-if="errormsg" id="errormsg">{{errormsg}}</span>
     <div v-if="!board" id="game-id-entry">
       <label>
-        <span v-if="errormsg" id="errormsg">{{errormsg}}</span>
         <strong>Enter a Game ID to begin:</strong>&nbsp;
         <input v-on:input="errormsg=null" v-model="id" type="text" />
         <br>
@@ -73,17 +73,18 @@ export default {
     },
 
     pollUpdate() {
+      if (this.validMoves !== null && this.validMoves.length === 0) {
+        this.errormsg = 'Game Over!';
+        return
+      }
       this.timeoutId = setTimeout(async () => {
         try {
-          let res = await fetch(`/api/games/${this.id}/moves/${this.moves.length}`);
-          if (res.ok) {
-            document.getElementById('chime').play();
-            this.fetchGame();
-          }
+          this.fetchGame();
           this.pollUpdate();
         } catch (err) {
           console.error(err);
-          this.pollUpdate();
+          this.errormsg = 'An error occurred while attempting to load updates. Please refresh the page.';
+          //this.pollUpdate();
         }
       }, 1000);
     },
@@ -93,7 +94,10 @@ export default {
         let res = await fetch('/api/games/' + (id || this.id));
         if (!res.ok) {console.error(res); return false;}
         let body = await res.json();
-        this.updateGame(body);
+        if (this.moves == null || body.moves.length != this.moves.length) {
+          document.getElementById('chime').play();
+          this.updateGame(body);
+        }
         return true;
       } catch (err) {
         console.error(err)
@@ -106,6 +110,7 @@ export default {
       this.moves = moves;
       this.board = board;
       this.displayedMove = null;
+      this.errormsg = null;
       this.fetchValidMoves();
     },
 
@@ -147,6 +152,8 @@ export default {
   display: block;
   color: red;
   font-weight: bold;
+  max-width: 40ch;
+  text-align: center;
 }
 
 pre {
