@@ -2,7 +2,7 @@ const express = require('express');
 const app = express();
 const port = 3000
 
-const {Game, Move, Space} = require('./othello.js');
+const GameTypes = require('./gameTypes.js');
 const store = require('./store.js');
 const validation = require('./validation.js');
 
@@ -21,9 +21,15 @@ app.use(express.json({strict:false}));
 
 app.get('/', (req, res) => res.redirect('http://www.mattmerr.com'));
 
-app.get('/games', (req, res) => {
-  let id = store.createGame();
-  res.send({id});
+app.post('/games', (req, res) => {
+  try {
+    let {type} = req.body;
+    let game = store.createGame(type);
+    res.send(game);
+  } catch (err) {
+    console.error('Error creating game', err);
+    badRequest(res);
+  }
 });
 
 app.get('/games/:game_id([a-z0-9-]+)', (req, res) => {
@@ -77,7 +83,7 @@ app.post('/games/:game_id([a-z0-9-]+)/moves/:move_id', (req, res) => {
   let v = validation.validateMove(req.body);
 
   let game = store.loadGameObject(req.params.game_id);
-  if (v.errors.length > 0 || (game && moveNumber !== game.moves.length)) {
+  if (/*v.errors.length > 0 ||*/ (game && moveNumber !== game.moves.length)) {
     badRequest(res);
     return;
   }
@@ -88,6 +94,7 @@ app.post('/games/:game_id([a-z0-9-]+)/moves/:move_id', (req, res) => {
 
   // TODO: determine player movability and stuff or something idk
   //let move = new Move(req.body.player, req.body.space.row, req.body.space.col);
+  let {Move} = GameTypes.getType(game.type);
   let move = Move.fromString(game.moves.length % 2 + 1, req.body);
   if (!game.isValid(move)) {
     badRequest(res, 'Invalid Move');

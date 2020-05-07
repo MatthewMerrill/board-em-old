@@ -10,11 +10,27 @@
       <button v-bind:disabled="!id" v-on:click="join(0)">Join as Player 1</button>
       <button v-bind:disabled="!id" v-on:click="join(1)">Join as Player 2</button>
       <button v-bind:disabled="!id" v-on:click="join(2)">Join as Both Players</button>
+      <br/>
+      <select v-bind:disabled="!!id" v-model="gameType">
+        <option value="othello">Othello</option>
+        <option value="connect4">Connect 4</option>
+      </select>
+      <button v-bind:disabled="!!id" v-on:click="create()">Create Game</button>
     </div>
     <div v-if="board" class="game-view">
-      <button v-bind:disabled="!id" v-on:click="setPlayer(0)">Play as Player 1</button>
-      <button v-bind:disabled="!id" v-on:click="setPlayer(1)">Play as Player 2</button>
-      <button v-bind:disabled="!id" v-on:click="setPlayer(2)">Play as Both Players</button>
+      <div class="button-row">
+        <button v-if="!idVisible" v-on:click="idVisible=true">Show Game ID</button>
+        <button v-if="idVisible" v-on:click="idVisible=false">Hide Game ID</button>
+        <button v-on:click="leave()">Leave Game</button>
+        <br>
+        <input readonly v-if="idVisible" v-model="id">
+      </div>
+      <hr>
+      <div class="button-row">
+        <button v-bind:disabled="!id" v-on:click="setPlayer(0)">Play as Player 1</button>
+        <button v-bind:disabled="!id" v-on:click="setPlayer(1)">Play as Player 2</button>
+        <button v-bind:disabled="!id" v-on:click="setPlayer(2)">Play as Both Players</button>
+      </div>
       <pre v-if="displayedMove === null">{{board}}</pre>
       <pre v-if="displayedMove !== null">{{validMoves[displayedMove].render}}</pre>
       <div id="move-list">
@@ -45,6 +61,8 @@ export default {
   name: 'Game',
   data: () => ({
     id: null,
+    idVisible: false,
+    gameType: 'othello',
     moves: null,
     board: null,
     errormsg: null,
@@ -59,12 +77,42 @@ export default {
       try {
         let worked = await this.fetchGame();
         if (!worked) throw new Error();
+        location.hash = this.id;
+        history.pushState(location.href, 'In Game');
         this.setPlayer(playerId);
         this.pollUpdate();
       } catch (err) {
         this.errormsg = 'Unable to connect to game with that ID.';
         console.error(err);
       }
+    },
+
+    leave() {
+      this.idVisible = false;
+      this.moves = null;
+      this.board = null;
+      this.errormsg = null;
+      this.validMoves = null;
+      this.displayedMove = null;
+      this.playerId = -1;
+      this.playerName = 'Unknown Player';
+      clearTimeout(this.timeoutId);
+      this.timeoutId = null;
+    },
+
+    async create() {
+      let res = await fetch('/api/games', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ type: this.gameType, }),
+      });
+      if (!res.ok) {console.error(res); return;}
+      let body = await res.json();
+      console.log(body);
+      this.id = body.id;
+      location.hash = body.id;
     },
 
     setPlayer(playerId) {
@@ -75,11 +123,11 @@ export default {
     pollUpdate() {
       if (this.validMoves !== null && this.validMoves.length === 0) {
         this.errormsg = 'Game Over!';
-        return
+        return;
       }
       this.timeoutId = setTimeout(async () => {
         try {
-          this.fetchGame();
+          await this.fetchGame();
           this.pollUpdate();
         } catch (err) {
           console.error(err);
@@ -96,7 +144,8 @@ export default {
         let body = await res.json();
         if (this.moves == null || body.moves.length != this.moves.length) {
           document.getElementById('chime').play();
-          this.updateGame(body);
+          await this.updateGame(body);
+          await this.fetchValidMoves();
         }
         return true;
       } catch (err) {
@@ -111,7 +160,6 @@ export default {
       this.board = board;
       this.displayedMove = null;
       this.errormsg = null;
-      this.fetchValidMoves();
     },
 
     async fetchValidMoves() {
@@ -146,6 +194,10 @@ export default {
 #game-id-entry {
   text-align: center;
   color: #2c3e50;
+}
+
+.button-row {
+  text-align: center;
 }
 
 #errormsg {

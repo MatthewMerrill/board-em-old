@@ -2,6 +2,7 @@
 class Game {
   constructor(id, skipInit) {
     this.id = id;
+    this.type = 'othello';
     this.moves = [];
     this.board = new Board();
     if (!skipInit) {
