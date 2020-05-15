@@ -19,6 +19,11 @@ function notFound(res) {
 // TODO: wrap moves to be able to be strict
 app.use(express.json({strict:false}));
 
+app.use((req, res, next) => {
+  console.log(req.method, req.path, req.body);
+  next();
+});
+
 app.get('/', (req, res) => res.redirect('http://www.mattmerr.com'));
 
 app.post('/games', (req, res) => {
@@ -95,7 +100,15 @@ app.post('/games/:game_id([a-z0-9-]+)/moves/:move_id', (req, res) => {
   // TODO: determine player movability and stuff or something idk
   //let move = new Move(req.body.player, req.body.space.row, req.body.space.col);
   let {Move} = GameTypes.getType(game.type);
-  let move = Move.fromString(game.moves.length % 2 + 1, req.body);
+  let move;
+  try {
+    move = Move.fromString(game.moves.length % 2 + 1, req.body);
+  } catch (err) {
+    console.error('Got bad move', req.body);
+    console.error(err);
+    badRequest(res, err.msg);
+    return;
+  }
   if (!game.isValid(move)) {
     badRequest(res, 'Invalid Move');
     return;

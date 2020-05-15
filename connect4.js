@@ -111,7 +111,8 @@ class Board {
   }
 
   isValidMove(move) {
-    return 0 <= move.colIdx && move.colIdx < 7
+    return !this.hasWinner()
+      && 0 <= move.colIdx && move.colIdx < 7
       && this.rowHeight(move.colIdx) < 6;
   }
 
