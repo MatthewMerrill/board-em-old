@@ -1,6 +1,9 @@
 <template>
   <div id="app">
-    <h1 class="title">My Board Game Hub Project</h1>
+    <div>
+      <h1 class="title">Board 'Em</h1>
+      <h6 class="subtitle">Perfect Information Board Games</h6>
+    </div>
     <Game class="shadowed lightpad"></Game>
     <div id="byline" class="shadowed lightpad">
       Matthew Merrill 2020
@@ -33,18 +36,17 @@ export default {
 h1.title {
   text-align: center;
   color: #2c3e50;
-  margin-top: 60px;
+  margin: 10px 0 0 0;
+}
+h6.subtitle {
+  text-align: center;
+  color: #000000;
+  margin: 0 2px 2px 2px;
 }
 
-.shadowed {
+#app > * {
   box-shadow: 2px 2px 5px black;
-}
-
-.lightpad {
   padding: 1ch;
-}
-
-#byline {
-  margin-top: 10px;
+  margin: 15px 0 0 5px;
 }
 </style>

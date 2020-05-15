@@ -5,7 +5,7 @@ class Actor:
         self.game = game
 
 
-    def get_move(self):
+    def get_move(self, game_state):
         pass
 
 

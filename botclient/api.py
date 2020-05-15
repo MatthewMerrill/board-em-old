@@ -2,7 +2,7 @@ import requests
 import time
 
 class GameRef:
-    def __init__(self, game_id, player_id=1, url_base='http://localhost:8080'):
+    def __init__(self, game_id, player_id=1, url_base='https://demo.mattmerr.com'):
         self.game_id = game_id
         self.url_base = url_base
         self.player_id = player_id
@@ -39,6 +39,8 @@ class GameRef:
                 time.sleep(1)
             
 
+    # TODO(matthewmerrill): This is very unstable and needs to be changed.
+    # If you are using this code, set a reminder to ping me about this sometime
     def is_my_turn(self):
         moves = len(self.game_info()['moves'])
         return (1 - moves % 2) != self.player_id
