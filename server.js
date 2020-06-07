@@ -6,6 +6,12 @@ const GameTypes = require('./gameTypes.js');
 const store = require('./store.js');
 const validation = require('./validation.js');
 
+var log = console.log;
+
+console.log = function(){
+    log.apply(console, [new Date().toISOString(), ...arguments]);
+};
+
 function badRequest(res, msg) {
   res.status(400);
   res.send({ code: 400, message: msg ? msg : 'Bad Request' });

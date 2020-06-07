@@ -45,7 +45,7 @@ h6.subtitle {
 }
 
 #app > * {
-  box-shadow: 2px 2px 5px black;
+  box-shadow: 2px 2px 5px #000;
   padding: 1ch;
   margin: 15px 0 0 5px;
 }
